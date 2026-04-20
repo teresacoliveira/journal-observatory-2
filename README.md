@@ -1,9 +1,21 @@
-# Journal Observatory 2
+# Tracking the Shift from Bar Graphs to Informative Plots in Biomedical Journals
 
-An interactive dashboard for tracking how data-visualisation practices in scientific publishing have evolved over time — focusing on the use of bar charts versus more informative alternatives across hundreds of journals and multiple research fields.
+An interactive dashboard for tracking how data-visualisation practices in scientific publishing have evolved over time in biomedical journals — focusing on the use of bar charts versus more informative alternatives across hundreds of journals and 12 research fields: 
+- Cardiac & Cardiovascular Systems
+- Clinical Neurology
+- Endocrinology & Metabolism
+- Genetics & Heredity
+- Immunology
+- Neurosciences
+- Oncology
+- Orthopedics
+- Pharmacology & Pharmacy
+- Physiology
+- Rheumatology
+- Urology & Nephrology
 
 > **Pre-registration:** [osf.io/tcyxg](https://osf.io/tcyxg/overview)
-> **Dashboard: ** https://teresacoliveira.github.io/journal-observatory-2/
+> **Dashboard: ** [website](https://teresacoliveira.github.io/journal-observatory-2)
 
 ---
 
