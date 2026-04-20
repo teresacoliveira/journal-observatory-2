@@ -1,138 +1,158 @@
-# Journal Observatory Dashboard
+# Journal Observatory 2
 
-An interactive dashboard for exploring how data visualisation practices in scientific publishing have changed over time. It focuses on a simple but important question: **are researchers increasingly choosing more informative ways to display their data?**
+An interactive dashboard for tracking how data-visualisation practices in scientific publishing have evolved over time — focusing on the use of bar charts versus more informative alternatives across hundreds of journals and multiple research fields.
 
----
-
-## What This Dashboard Shows
-
-For each Research Field tracked, you can follow two metrics year by year:
-
-- 🟣 **% Bars** — the share of papers that include bar charts, a common but often criticised visualisation type that can obscure the underlying distribution of data.
-- 🩵 **% Informative Graphs** — the share of papers using more informative alternatives — such as box plots, violin plots, or dot plots — that better represent individual data points and variability.
-
-Chart titles include sample size information: aggregated plots show the number of journals and total articles analysed (e.g. _"Cardiology (n = 8 journals, 12,450 articles)"_), and per-journal plots show the total article count (e.g. _"Circulation (n = 1,847 articles)"_). Tooltips additionally show the number of articles analysed in each individual year.
-
-### Policy Year Markers
-
-- On **per-journal plots**, a solid vertical line marks the year that journal adopted an editorial recommendation on figure types.
-- On **aggregated plots**, the policy marker is replaced by a set of semi-transparent vertical bands — one per year in which at least one journal in the field adopted a policy. Each band's **width is proportional to the percentage of journals** that adopted that year, so thicker bands indicate years of widespread adoption and thin bands mark isolated early or late movers.
+> **Pre-registration:** [osf.io/tcyxg](https://osf.io/tcyxg/overview)
+> **Dashboard: ** https://teresacoliveira.github.io/journal-observatory-2/
 
 ---
 
-## Research Fields Covered
+## Overview
 
-- Cardiac & Cardiovascular Systems
-- Clinical Neurology
-- Endocrinology & Metabolism
-- Genetics & Heredity
-- Immunology
-- Neurosciences
-- Oncology
-- Orthopedics
-- Pharmacology & Pharmacy
-- Physiology
-- Rheumatology
-- Urology & Nephrology
+This repository generates a self-contained, single-file HTML dashboard from longitudinal journal-level data screened by [barzooka](https://github.com/quest-bih/barzooka) — an automated deep-learning tool that detects chart types in scientific PDF figures.
+
+The dashboard lets you:
+
+- Track the prevalence of **bar charts** vs. **informative visualisations** (box plots, violin plots, dot plots, etc.) year by year (2010–2025)
+- Compare **policy journals** (those that adopted an editorial recommendation on figure types) against **non-policy journals**
+- Explore trends at three levels: **global**, **per research field**, and **per journal**
+- Visually assess whether editorial policies produce measurable changes in author behaviour
 
 ---
 
-## How to Navigate
+## How It Works
 
-The dashboard opens on the **About** tab, which shows the Global Aggregated Trend chart and a full description of the dashboard's features. Use the sidebar to switch between views:
+The script `generate_dashboard_from_csv_v5.py` reads a CSV file of journal-year-level statistics and outputs a fully self-contained HTML file (no server required). All charts are rendered with [Plotly](https://plotly.com/python/) and embedded as JSON inside the HTML.
 
-- **GLOBAL** — global aggregated trend across all journals, plus individual aggregated trend charts for each Research Field side by side.
-- **Per-field tabs** — one tab per Research Field, each showing an aggregated trend for that field followed by individual per-journal charts.
-
-Within any per-field view you can:
-
-- Adjust the **column slider** to display more or fewer journal charts side by side.
-- Use the **journal search bar** to filter visible cards or jump directly to a specific journal.
-- **Drag and drop** journal cards to reorder them within the grid (see below).
-
-### Showing and Hiding Lines
-
-Lines can be toggled in three ways:
-
-1. **Click a legend entry** inside any chart to hide or show that line within that chart only. Double-clicking isolates a single line; double-clicking again restores all lines.
-2. **Use the global toggle bar** (the row of buttons at the top of the page) to show or hide a line type — _% Bars_, _% Informative Graphs_, or _Policy adoption_ — **across every chart on the page simultaneously**.
-3. The policy adoption layer on aggregated plots shares the same toggle as the policy line on per-journal plots, so a single button click controls both.
-
-Legend boxes are semi-transparent so that data points beneath them remain visible.
-
-### Drag-and-Drop Card Reordering
-
-Each journal card has a narrow **⠿ grip strip along its left edge**. Drag it to move that card to any position within the grid — useful for placing two journals you want to compare side by side. The target card is highlighted as you drag so you can see exactly where it will land. Press **Escape** to cancel a drag in progress.
+```
+Input:  bz_journal_year_percentages_YYYYMMDD_HHMMSS.csv
+Output: dashboard_output/index_YYYYMMDD_HHMMSS.html
+```
 
 ---
 
-## Generating the Dashboard
+## Requirements
 
-The dashboard is produced as a single self-contained HTML file by running the Python script:
+- Python 3.8+
+- pandas
+- plotly
+
+Install dependencies:
 
 ```bash
-python generate_index_html_search_bar_about_cols1_v28b.py
-```
-
-### Requirements
-
-- Python 3.10+
-- `pandas`, `plotly`, `numpy`
-
-### Input Data
-
-The script expects the following CSV files in the configured `local_folder`:
-
-| File | Description |
-| ---- | ----------- |
-| `journals_selected_<timestamp>.csv` | Selected journals and metadata |
-| `field_selected_<timestamp>.csv` | Field list |
-| `simulated_journal_data_<timestamp>.csv` | Per-journal yearly results, including `EligibleArticles` |
-| `policy_df_<timestamp>.csv` | Policy year assignments per journal |
-
-The results file must include an `EligibleArticles` column with the number of articles analysed per journal per year. Update the `latest_timestamp`, `latest_timestamp_results`, and `local_folder` variables at the top of the script to point to your data.
-
-### Output
-
-The script writes a timestamped HTML file to the `new_figures_<date>_v28b/` output directory:
-
-```
-new_figures_20260312_v28b/index_20260312_121648.html
+pip install pandas plotly
 ```
 
 ---
 
-## Technical Notes
+## Usage
 
-- All Plotly figures are embedded inline — no external figure files are needed.
-- Plotly is loaded once from CDN (`plotly-2.35.2.min.js`) and shared across all charts.
-- The Global Aggregated Trend figure is rendered under two distinct div IDs (one for the About tab, one for the Global tab) from the same serialised JSON, so both tabs display it correctly.
-- The global legend toggle uses `Plotly.restyle()` to update trace visibility across all plot elements on the page, matching traces by both `name` and `legendgroup`.
-- The layout is fully responsive, with a CSS grid that the user can resize in-browser via the column slider.
+1. Clone this repository:
 
-### Adaptive Chart Titles
+```bash
+git clone https://github.com/teresacoliveira/journal-observatory-2.git
+cd journal-observatory-2
+```
 
-Chart titles in the grid scale dynamically to the available card width. As cards get narrower (more columns selected, or a smaller browser window), the title font size shrinks proportionally and long titles wrap onto multiple lines via `<br>` injection. In multi-column grids all cards in the same grid share the same top margin, keeping their y-axes horizontally aligned regardless of title length. Title layout is recalculated on panel switch, column change, window resize, and after drag-and-drop reorders. A `ResizeObserver` watches each grid container and single-plot wrapper so layout updates fire automatically on any size change.
+2. Place your input CSV in the appropriate directory (or update `CSV_PATH` in the script):
 
-### Adaptive X-Axis Tick Density
+```python
+CSV_PATH = r"path/to/bz_journal_year_percentages_YYYYMMDD_HHMMSS.csv"
+```
 
-The x-axis year labels thin out automatically as cards get narrower, preventing the overlapping labels that occur at higher column counts:
+3. Run the generator:
 
-| Card width | Tick interval | Font size |
-| ---------- | ------------- | --------- |
-| ≥ 500 px | Every year (dtick = 1) | 10 px |
-| 350–499 px | Every 2 years (dtick = 2) | 9 px |
-| < 350 px | Every 5 years (dtick = 5) | 8 px |
+```bash
+python generate_dashboard_from_csv_v5.py
+```
 
-Tick density is recalculated alongside title layout, so it stays in sync on every panel switch, column change, window resize, and drag-and-drop reorder.
+4. Open the output file in any modern browser:
 
-### Drag-and-Drop Implementation
+```
+dashboard_output/index_YYYYMMDD_HHMMSS.html
+```
 
-Card reordering uses the **Pointer Events API** (`pointerdown` / `pointermove` / `pointerup`) rather than the HTML5 Drag-and-Drop API. This is intentional: setting `draggable="true"` on a parent element suppresses `mousemove` events inside it, which breaks Plotly's hover tooltips and legend interactions. The implementation instead:
+---
 
-- Attaches all listeners directly to the **drag handle element** (never to `document`), so Plotly's own event listeners are completely unaffected.
-- Uses `handle.setPointerCapture()` so `pointermove` and `pointerup` continue firing on the handle even as the cursor moves over other cards.
-- Shows a lightweight ghost `<div>` (an empty placeholder, not a clone of the card) that follows the cursor during the drag.
-- Temporarily hides the ghost with `visibility: hidden` when calling `elementFromPoint()` to detect the drop target, preventing the ghost from intercepting the hit-test.
-- Places the handle in a **14 px strip to the left of the chart area** (the card is a CSS flex row), so the handle never overlaps the Plotly canvas.
-- Wires up new handles via a `MutationObserver`, eliminating timing races with asynchronously rendered Plotly figures.
+## Input Data Format
+
+The input CSV must contain one row per journal per year, with the following key columns:
+
+| Column | Description |
+|---|---|
+| `Journal_Name` | Full journal name |
+| `JCR_Abbrev` | JCR abbreviated journal title (used as unique identifier) |
+| `year` | Publication year |
+| `Field` | Primary research field |
+| `All_Fields` | All fields the journal belongs to |
+| `policy` | `1` if the journal has an editorial visualisation policy, `0` otherwise |
+| `policy_year` | Year the policy was adopted (if applicable) |
+| `p_only_bar` | Proportion of articles using *only* bar charts (0–1) |
+| `p_only_inf` | Proportion of articles using *only* informative charts (0–1) |
+| `p_bar_and_inf` | Proportion of articles using *both* chart types (0–1) |
+| `n_articles` | Total number of screened articles that year |
+| `n_bar_or_informative` | Number of eligible articles containing relevant figures |
+
+> Proportions in the CSV (0–1) are automatically scaled to percentages (0–100) by the script.
+
+---
+
+## Dashboard Features
+
+**Navigation**  
+Sidebar links to the **About** tab, a **GLOBAL** overview, and individual **Research Field** tabs.
+
+**Aggregated charts**  
+Each tab shows three side-by-side trend charts: *All journals*, *Policy journals*, and *Non-Policy journals*. The **Show charts** dropdown in the top bar filters which card types are visible.
+
+**Individual journal charts**  
+Each field tab lists per-journal trend charts. Use the **Find journal** search box to highlight and scroll to a specific card, the **Show journals** dropdown to filter by policy status, and the **Columns** slider to adjust the grid layout (1–6 columns). Cards can be **drag-and-dropped** to reorder.
+
+**Global controls**  
+**Show/hide all** toggle buttons in the top bar hide or show any metric across every chart simultaneously.
+
+**Policy year markers**  
+Per-journal charts show a single vertical line at the year of policy adoption. Aggregated charts show semi-transparent yellow bands whose width reflects the proportion of journals adopting a policy in a given year.
+
+---
+
+## Metrics
+
+| Metric | Colour | Description |
+|---|---|---|
+| % only bar | Red `#c0392b` | Articles using only bar charts for continuous data |
+| % bar and informative | Salmon `#e8998d` | Articles using both bar and informative charts |
+| % only informative | Teal `#76b5b2` | Articles using only informative charts |
+| Policy adoption | Yellow `#fde624` | Vertical marker at the journal's policy adoption year |
+
+---
+
+## Background & Motivation
+
+Bar charts that reduce continuous data to a mean and error bar are widely criticised for concealing distributional features — bimodality, skewness, outliers — that are critical for interpreting and replicating results. Despite two decades of calls to replace them, bar charts remain the dominant format across many biomedical and life-science journals.
+
+A growing number of journals have introduced **editorial policies** that explicitly encourage or require more informative alternatives. These policy adoptions create natural quasi-experiments: by comparing visualisation practices *before* and *after* a policy — and against journals that never adopted one — it is possible to estimate whether editorial recommendations produce measurable changes in author behaviour.
+
+This dashboard provides exactly that view, enabling longitudinal tracking of thousands of articles across hundreds of journals, year by year.
+
+The study protocol is publicly pre-registered at **[osf.io/tcyxg](https://osf.io/tcyxg/overview)**.
+
+---
+
+## Key References
+
+- Weissgerber et al. (2015). *Beyond bar and line graphs: time for a new data presentation paradigm.* PLOS Biology. [doi:10.1371/journal.pbio.1002128](https://doi.org/10.1371/journal.pbio.1002128)
+- Riedel et al. (2022). *Replacing bar graphs of continuous data with more informative graphics: are we making progress?* Clinical Science. [doi:10.1042/CS20220287](https://doi.org/10.1042/CS20220287)
+- Riedel N, Nachev V, Schulz R, Kazezian V, Weissgerber T. *barzooka* — automated figure screening tool. [GitHub](https://github.com/quest-bih/barzooka)
+
+---
+
+## License
+
+MIT
+
+---
+
+## Contact
+
+Teresa Cunha-Oliveira — [@teresacoliveira](https://github.com/teresacoliveira)
